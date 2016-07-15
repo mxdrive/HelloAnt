@@ -1,0 +1,66 @@
+<project name="HelloAnt" default="deploy">
+
+    <property name="dest" value="/home/developer/JavaBuild"/>
+    <property file="src/build.properties"/>
+    <tstamp/>
+
+    <target name="build" depends="clean, init">
+        <echo message="Hello Ant ${TODAY}"/>
+
+        <javac srcdir="${src.dir}" destdir="${dest}" />
+
+        <java classname="com.company.Main" classpath="${dest}"/>
+
+    </target>
+
+    <target name="hello">
+        <echo message="Target hello"/>
+    </target>
+
+    <target name="init">
+        <mkdir dir="${dest}"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${dest}"/>
+    </target>
+
+    <!--<target name="install-jars" description="Install ANT optional jars">-->
+        <!--<mkdir dir="${dest}/.ant/lib"/>-->
+        <!--<get dest="${dest}/.ant/lib/mail.jar"       src="http://search.maven.org/remotecontent?filepath=javax/mail/mail/1.4.4/mail-1.4.4.jar"/>-->
+        <!--<get dest="${dest}/.ant/lib/activation.jar" src="http://search.maven.org/remotecontent?filepath=javax/activation/activation/1.1/activation-1.1.jar"/>-->
+    <!--</target>-->
+
+    <target name="deploy" depends="build">
+
+        <mkdir dir="./deploy"/>
+
+        <copy todir="./deploy">
+            <fileset dir="${dest}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+
+        <zip destfile="deploy/helloant.zip">
+            <zipfileset dir="${dest}" prefix="bin"/>
+        </zip>
+
+        <mkdir dir="${dest}/.ant/lib"/>
+        <get dest="${dest}/.ant/lib/mail.jar"       src="http://search.maven.org/remotecontent?filepath=javax/mail/mail/1.4.4/mail-1.4.4.jar"/>
+        <get dest="${dest}/.ant/lib/activation.jar" src="http://search.maven.org/remotecontent?filepath=javax/activation/activation/1.1/activation-1.1.jar"/>
+
+        <mail mailhost="smtp.gmail.com" mailport="587" ssl="true" password="Elvisguit@3157511898" subject="Test build">
+            <from address="anthony.chernenko@gmail.com"/>
+            <replyto address="anthony.chernenko@gmail.com"/>
+            <to address="anthony.chernenko@gmail.com"/>
+            <message>The ${buildname} has completed</message>
+            <attachments>
+                <fileset dir="deploy">
+                    <include name="**/*.zip"/>
+                </fileset>
+            </attachments>
+        </mail>
+
+    </target>
+
+</project>
